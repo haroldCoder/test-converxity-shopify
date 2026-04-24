@@ -17,4 +17,33 @@ import * as Prisma from './internal/prismaNamespaceBrowser.js'
 export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
-
+/**
+ * Model Shop
+ * 
+ */
+export type Shop = Prisma.ShopModel
+/**
+ * Model Affiliate
+ * 
+ */
+export type Affiliate = Prisma.AffiliateModel
+/**
+ * Model Conversion
+ * 
+ */
+export type Conversion = Prisma.ConversionModel
+/**
+ * Model BillingRecord
+ * 
+ */
+export type BillingRecord = Prisma.BillingRecordModel
+/**
+ * Model WebhookEvent
+ * 
+ */
+export type WebhookEvent = Prisma.WebhookEventModel
+/**
+ * Model PixelEvent
+ * 
+ */
+export type PixelEvent = Prisma.PixelEventModel

@@ -11,3 +11,106 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Shop {
+  id                     String   @id @default(cuid())
+  domain                 String   @unique
+  accessToken            String
+  subscriptionId         String?
+  subscriptionLineItemId String?
+  installedAt            DateTime @default(now())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  affiliates             Affiliate[]
+  conversions            Conversion[]
+
+  @@index([domain])
+}
+
+model Affiliate {
+  id                String   @id @default(cuid())
+  shopId            String
+  name              String
+  code              String
+  commissionPercent Float
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  shop              Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  conversions       Conversion[]
+
+  @@unique([shopId, code])
+  @@index([shopId])
+  @@index([code])
+}
+
+model Conversion {
+  id              String   @id @default(cuid())
+  shopId          String
+  affiliateId     String
+  orderId         String
+  currency        String   @default("USD")
+  total           Float
+  appFee          Float
+  affiliateFee    Float
+  status          String   @default("processed")
+  source          String   @default("web_pixel")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  shop            Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  affiliate       Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  billingRecords  BillingRecord[]
+
+  @@unique([shopId, orderId])
+  @@index([shopId])
+  @@index([affiliateId])
+  @@index([createdAt])
+}
+
+model BillingRecord {
+  id              String   @id @default(cuid())
+  conversionId    String
+  externalId      String?
+  amount          Float
+  currency        String   @default("USD")
+  status          String   @default("success")
+  description     String?
+  createdAt       DateTime @default(now())
+
+  conversion      Conversion @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+
+  @@index([conversionId])
+  @@index([createdAt])
+}
+
+model WebhookEvent {
+  id              String   @id @default(cuid())
+  topic           String
+  shopDomain      String
+  externalEventId String?
+  payload         String
+  processed       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([shopDomain])
+  @@index([topic])
+  @@index([createdAt])
+}
+
+model PixelEvent {
+  id              String   @id @default(cuid())
+  shopDomain      String
+  affiliateCode   String?
+  orderId         String?
+  total           Float?
+  payload         String
+  processed       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([shopDomain])
+  @@index([affiliateCode])
+  @@index([createdAt])
+}

@@ -8,4 +8,10 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Shop.js'
+export type * from './models/Affiliate.js'
+export type * from './models/Conversion.js'
+export type * from './models/BillingRecord.js'
+export type * from './models/WebhookEvent.js'
+export type * from './models/PixelEvent.js'
 export type * from './commonInputTypes.js'
