@@ -1,0 +1,9 @@
+api_version = "2024-04"
+
+[[extensions]]
+name = "affiliate-pixel"
+type = "web_pixel"
+handle = "affiliate-pixel"
+
+[extensions.capabilities]
+collect_privacy_data = true
