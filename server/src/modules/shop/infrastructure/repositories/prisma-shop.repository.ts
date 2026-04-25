@@ -25,6 +25,12 @@ export class PrismaShopRepository {
     });
   }
 
+  async findById(id: string) {
+    return prisma.shop.findUnique({
+      where: { id },
+    });
+  }
+
   async updateSubscription(
     domain: string,
     subscriptionId: string,

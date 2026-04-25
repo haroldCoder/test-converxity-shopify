@@ -4,5 +4,7 @@ export interface AffiliateEntity {
   name: string;
   code: string;
   commissionPercent: number;
-  createdAt: Date;
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
