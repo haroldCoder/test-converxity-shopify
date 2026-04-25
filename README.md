@@ -8,7 +8,6 @@ Este documento detalla la instalación, arquitectura, estrategias de despliegue 
 
 ### Prerrequisitos
 *   Node.js (v18+)
-*   Docker y Docker Compose
 *   Shopify CLI (para desarrollo de extensiones)
 *   ngrok o Cloudflare Tunnel (para webhooks locales)
 
@@ -19,11 +18,8 @@ Este documento detalla la instalación, arquitectura, estrategias de despliegue 
     cd test-converxity-shopify
     ```
 
-2.  **Levantar la Base de Datos (PostgreSQL):**
-    ```bash
-    docker-compose up -d
-    ```
-    *Esto iniciará una instancia de PostgreSQL en el puerto 5432.*
+2.  **Preparar la Base de Datos (SQLite):**
+    *La base de datos se crea automáticamente al ejecutar las migraciones en el siguiente paso.*
 
 3.  **Configurar y Levantar el Servidor (NestJS):**
     ```bash
@@ -53,8 +49,8 @@ Este documento detalla la instalación, arquitectura, estrategias de despliegue 
 ## 2. Gestión de Entornos
 
 ### Ciclo de Vida (SDLC)
-*   **Desarrollo (Local):** Uso de `docker-compose` para DB, `ngrok` para túneles y `shopify app dev` para vincular con una tienda de desarrollo.
-*   **Staging:** Entorno idéntico a producción (ej. Render o AWS) vinculado a una tienda de pruebas de Shopify para control de calidad.
+*   **Desarrollo (Local):** Uso de SQLite (LibSQL) para persistencia local rápida, `ngrok` para túneles y `shopify app dev` para vincular con una tienda de desarrollo.
+*   **Staging:** Entorno idéntico a producción vinculado a una tienda de pruebas de Shopify para control de calidad.
 *   **Producción:** Entorno de alta disponibilidad con monitoreo activo.
 
 ### Partner Dashboard
@@ -77,9 +73,9 @@ Un flujo seguro incluiría:
 ## 4. Estrategia de Despliegue
 
 ### Opciones de Infraestructura
-*   **VPS (ej. DigitalOcean Droplet):** Despliegue con Docker Compose + Caddy/Nginx como Reverse Proxy para SSL automático.
-*   **Cloud (ej. AWS/GCP):** Uso de ECS/Fargate para contenedores, RDS para PostgreSQL administrado y Secret Manager para credenciales.
-*   **Serverless (ej. Vercel/Render):** Frontend en Vercel, Backend en Render (Node.js service). *Nota: Para Web Pixels, el backend debe ser altamente responsivo.*
+*   **VPS (ej. DigitalOcean Droplet):** Despliegue de la app (Node.js) con una base de datos SQLite persistente (usando volúmenes de Docker si se desea contenedorizar la app) y Caddy/Nginx como Reverse Proxy.
+*   **Cloud (ej. AWS/GCP):** Uso de contenedores para la app y **Turso** (LibSQL) o **RDS** (si se migra a Postgres/MySQL) para la base de datos administrada.
+*   **Serverless (ej. Vercel/Render):** Frontend en Vercel, Backend en Render. Para SQLite en serverless, se recomienda **Turso** por su baja latencia y compatibilidad con LibSQL.
 
 ### Gestión de Secretos
 *   Uso de variables de entorno (`.env`) nunca subidas al repo.
@@ -90,13 +86,13 @@ Un flujo seguro incluiría:
 ## 5. Arquitectura de Base de Datos
 
 ### Justificación del Esquema Actual
-*   **PostgreSQL:** Elegido por su robustez, soporte de tipos JSONB para payloads de eventos y capacidades de indexación avanzada.
+*   **SQLite (LibSQL):** Elegido por su simplicidad en desarrollo local, nula necesidad de configuración de infraestructura externa y excelente rendimiento para aplicaciones de Shopify de tamaño medio.
 *   **Estructura Relacional:** Asegura integridad entre `Shop` -> `Affiliate` -> `Conversion`. Las claves foráneas y restricciones garantizan que no existan cobros huérfanos.
 
 ### Escalabilidad para Millones de Eventos
-1.  **Particionamiento de Tablas:** Particionar la tabla `PixelEvent` y `Conversion` por `createdAt` (mensual o semanal).
-2.  **Índices Especializados:** Índices B-Tree en `shopDomain` y GIN en campos JSON si es necesario consultar dentro de los payloads.
-3.  **Migración a Producción:** Al pasar de un volumen bajo a millones de eventos, se debe considerar **TimescaleDB** (extensión de Postgres para series temporales) para el almacenamiento de eventos de tracking crudos.
+1.  **Migración a Base de Datos Distribuida:** Al escalar a millones de eventos, se recomienda migrar a **PostgreSQL** (con particionamiento) o seguir con **Turso/LibSQL** aprovechando sus réplicas de lectura cerca de los usuarios.
+2.  **Índices Especializados:** Mantener índices B-Tree en `shopDomain` y `affiliateCode` para consultas rápidas.
+3.  **Archivado de Eventos:** Implementar una estrategia de archivado para mover eventos antiguos de `PixelEvent` a un almacenamiento frío (S3/BigQuery) para mantener la base de datos principal ligera.
 
 ---
 
