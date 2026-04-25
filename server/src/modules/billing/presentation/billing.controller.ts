@@ -25,10 +25,10 @@ export class BillingController {
       new CreateUsageChargeUseCase(gateway);
 
     return useCase.execute({
-        shopDomain: body.shopDomain,
-        amount: body.amount,
-        description: `Charge for conversion ${body.conversionId}`,
-        conversionId: body.conversionId,
+      subscriptionLineItemId: body.shopDomain,
+      amount: body.amount,
+      description: `Charge for conversion ${body.conversionId}`,
+      conversionId: body.conversionId,
     });
   }
 }

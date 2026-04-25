@@ -29,16 +29,23 @@ export class ShopsController {
   @Get("callback")
   async callback(
     @Query("shop") shop: string,
-    @Query("code") code: string
+    @Query("code") code: string,
+    @Res() res: Response
   ) {
     const gateway = new ShopifyAuthGateway();
 
     const useCase =
       new ExchangeTokenUseCase(gateway);
 
-    return useCase.execute({
+    const result = await useCase.execute({
       shop,
       code,
     });
+
+    if (result && 'confirmationUrl' in result && result.confirmationUrl) {
+      return res.redirect(result.confirmationUrl as string);
+    }
+
+    return res.json(result);
   }
 }
