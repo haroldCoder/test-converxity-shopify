@@ -1,7 +1,6 @@
 import { ShopifyBillingGateway } from "@/common/infrastructure/gateways/shopify-billing.gateway";
 import { PrismaBillingRepository } from "@/common/infrastructure/repositories/prisma-billing.repository";
 import { PrismaShopRepository } from "@/modules/shop/infrastructure/repositories";
-import { ShopifyBillingException } from "../../domain/exceptions";
 import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
 
 export class CreateUsageChargeUseCase {
@@ -30,20 +29,12 @@ export class CreateUsageChargeUseCase {
       `Creating usage charge for shop ${input.shopDomain}, subscription item ${input.subscriptionLineItemId}: ${input.amount}`
     );
 
-    const response = await this.gateway.createUsageCharge(
+    await this.gateway.createUsageCharge(
       input.subscriptionLineItemId,
       input.amount,
       input.description
     );
-
-    if (
-      response.appUsageRecordCreate?.userErrors?.length >
-      0
-    ) {
-      throw new ShopifyBillingException(
-        response.appUsageRecordCreate.userErrors[0].message
-      );
-    }
+    // Errors (including userErrors) are thrown by ShopifyBillingGateway
 
     const record = await this.repo.create({
       conversionId: input.conversionId,

@@ -46,25 +46,12 @@ export class ExchangeTokenUseCase {
       // La URL de retorno debería ser la URL del dashboard de tu app
       const returnUrl = `https://${input.shop}/admin/apps/test-converxity-affiliates`;
 
-      const subResponse =
+      const confirmationUrlResponse =
         await subscriptionGateway.createCappedPlan(
           returnUrl
         );
 
-      if (
-        subResponse.appSubscriptionCreate?.userErrors
-          ?.length > 0
-      ) {
-        console.error(
-          "Shopify Subscription Error:",
-          subResponse.appSubscriptionCreate.userErrors[0]
-            .message
-        );
-      } else {
-        confirmationUrl =
-          subResponse.appSubscriptionCreate
-            ?.confirmationUrl || undefined;
-      }
+      confirmationUrl = confirmationUrlResponse ?? undefined;
     } catch (error) {
       console.error(
         "Error initiating subscription plan:",
