@@ -1,0 +1,1 @@
+export * from "./shop-not-found.exception";

@@ -19,7 +19,8 @@ import { CreateAffiliateDto } from "./dto/create-affiliate.dto";
 import { AffiliateResponseDto } from "./dto/affiliate-response.dto";
 import { AffiliateNotFoundException } from "../domain/exceptions/affiliate-not-found.exception";
 import { AffiliateAlreadyExistsException } from "../domain/exceptions/affiliate-already-exists.exception";
-import { ShopNotFoundException } from "../domain/exceptions/shop-not-found.exception";
+import { ShopNotFoundException } from "@/modules/shop/domain/exceptions/shop-not-found.exception";
+
 import { ApiResponse } from "@/common/presentation/utils/api-response";
 
 

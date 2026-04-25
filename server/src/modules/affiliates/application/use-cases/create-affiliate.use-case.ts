@@ -1,6 +1,7 @@
 import { PrismaAffiliateRepository } from "@/common/infrastructure/repositories";
 import { AffiliateAlreadyExistsException } from "../../domain/exceptions/affiliate-already-exists.exception";
-import { ShopNotFoundException } from "../../domain/exceptions/shop-not-found.exception";
+import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
+
 import { PrismaShopRepository } from "@/modules/shop/infrastructure/repositories";
 
 

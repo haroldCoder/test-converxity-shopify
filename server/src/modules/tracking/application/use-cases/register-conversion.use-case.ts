@@ -57,6 +57,7 @@ export class RegisterConversionUseCase {
         const billingUseCase = new CreateUsageChargeUseCase(billingGateway);
 
         await billingUseCase.execute({
+          shopDomain: shop.domain,
           subscriptionLineItemId: shop.subscriptionLineItemId,
           conversionId: conversion.id,
           amount: appFee,
