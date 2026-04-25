@@ -1,34 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { AppLayout } from './common/layouts'
+import { EmptyState, Loader, MetricCard, PageHeader } from './common/components'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <AppLayout>
+      <PageHeader title="Dashboard" subtitle="Welcome to your Shopify admin panel" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <MetricCard title="Total Orders" value="1,240" />
+        <MetricCard title="Total Revenue" value="$32,840" />
+        <MetricCard title="Active Products" value="86" />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+      <div className="bg-white rounded-lg border border-[#e1e3e5] shadow-sm p-4 mb-8">
+        <Loader />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      <div className="bg-white rounded-lg border border-[#e1e3e5] shadow-sm">
+        <EmptyState message="No orders found. Start by creating your first order." />
+      </div>
+    </AppLayout>
   )
 }
 
