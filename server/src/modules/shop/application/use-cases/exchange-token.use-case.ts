@@ -1,49 +1,80 @@
 import { ShopifyAuthGateway } from "../../infrastructure/gateways";
 import { PrismaShopRepository } from "../../infrastructure/repositories";
-import { ShopifyGraphqlClient, ShopifySubscriptionGateway } from "../../../../common/infrastructure/gateways";
+import { ShopifyAuthException } from "../../domain/exceptions";
+import {
+  ShopifyGraphqlClient,
+  ShopifySubscriptionGateway,
+} from "../../../../common/infrastructure/gateways";
+import { ShopAuthResult } from "../../domain/entities";
 
 export class ExchangeTokenUseCase {
   constructor(
-    private auth: ShopifyAuthGateway,
-    private repo = new PrismaShopRepository()
+    private readonly gateway: ShopifyAuthGateway,
+    private readonly repo = new PrismaShopRepository()
   ) { }
 
-  async execute(input: {
-    shop: string;
-    code: string;
-  }) {
-    const token = await this.auth.exchangeToken(
+  async execute(
+    input: { shop: string; code: string }
+  ): Promise<ShopAuthResult> {
+    const response = await this.gateway.exchangeToken(
       input.shop,
       input.code
     );
 
-    await this.repo.upsert({
+    if (!response.access_token) {
+      throw new ShopifyAuthException(
+        "Failed to receive access token from Shopify"
+      );
+    }
+
+    const shop = await this.repo.upsert({
       domain: input.shop,
-      accessToken: token.access_token,
+      accessToken: response.access_token,
     });
+
+    let confirmationUrl: string | undefined;
 
     // --- Subscription Plan Initiation ---
     try {
-      const graphqlClient = new ShopifyGraphqlClient(input.shop, token.access_token);
-      const subscriptionGateway = new ShopifySubscriptionGateway(graphqlClient);
+      const graphqlClient = new ShopifyGraphqlClient(
+        input.shop,
+        response.access_token
+      );
+      const subscriptionGateway =
+        new ShopifySubscriptionGateway(graphqlClient);
 
       // La URL de retorno debería ser la URL del dashboard de tu app
       const returnUrl = `https://${input.shop}/admin/apps/test-converxity-affiliates`;
 
-      const response = await subscriptionGateway.createCappedPlan(returnUrl);
+      const subResponse =
+        await subscriptionGateway.createCappedPlan(
+          returnUrl
+        );
 
-      if (response.appSubscriptionCreate?.userErrors?.length > 0) {
-        console.error('Subscription Error:', response.appSubscriptionCreate.userErrors);
+      if (
+        subResponse.appSubscriptionCreate?.userErrors
+          ?.length > 0
+      ) {
+        console.error(
+          "Shopify Subscription Error:",
+          subResponse.appSubscriptionCreate.userErrors[0]
+            .message
+        );
       } else {
-        return {
-          ...token,
-          confirmationUrl: response.appSubscriptionCreate?.confirmationUrl
-        };
+        confirmationUrl =
+          subResponse.appSubscriptionCreate
+            ?.confirmationUrl || undefined;
       }
     } catch (error) {
-      console.error('Error initiating subscription:', error);
+      console.error(
+        "Error initiating subscription plan:",
+        error
+      );
     }
 
-    return token;
+    return {
+      ...shop,
+      confirmationUrl,
+    };
   }
 }
