@@ -1,2 +1,5 @@
 export * from "./use-debounce"
 export * from "./use-toggle"
+export * from "./use-dashboard-metrics"
+export * from "./use-affiliates"
+export type { Affiliate } from "./use-affiliates"
