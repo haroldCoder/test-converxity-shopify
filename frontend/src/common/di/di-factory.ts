@@ -1,7 +1,6 @@
 import type { AffiliateRepository } from "../domain/repositories";
-import { HttpAffiliateRepository } from "../infrastructure/api/HttpAffiliateRepository";
+import { HttpAffiliateRepository, HttpDashboardRepository } from "../infrastructure/api";
 import type { DashboardRepository } from "../domain/repositories";
-import { HttpDashboardRepository } from "../infrastructure/api/HttpDashboardRepository";
 
 export class DiFactory {
     static getAffiliateRepo(): AffiliateRepository {
