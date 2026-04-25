@@ -1,17 +1,7 @@
 services:
-  postgres:
-    image: postgres:15
-    container_name: test-converxity-shopify-db
-    environment:
-      POSTGRES_DB: test_converxity
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./server/prisma/init-shop.sql:/docker-entrypoint-initdb.d/init-shop.sql
-    restart: unless-stopped
+  # Base de datos SQLite se almacena localmente en server/prisma/dev.db
+  # No se requiere servicio de contenedor para la base de datos persistente en modo local.
+
 
 volumes:
   postgres_data:

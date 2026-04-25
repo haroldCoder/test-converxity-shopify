@@ -1,13 +1,13 @@
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
 
 declare global {
   var prisma: PrismaClient | undefined;
 }
 
-const connectionString = `${process.env.DATABASE_URL}`;
-
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaLibSql({
+  url: `${process.env.DATABASE_URL}`,
+});
 
 export const prisma =
   global.prisma ??
