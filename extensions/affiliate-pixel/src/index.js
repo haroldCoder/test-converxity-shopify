@@ -31,7 +31,7 @@ analytics.subscribe('checkout_completed', async (event) => {
         console.log('Enviando reporte de conversión al servidor...', payload)
 
         // Petición hacia tu túnel en localhost:3000
-        fetch('https://54a5-2800-e2-2380-271a-225-f9df-2e74-6cee.ngrok-free.app/api/tracking/conversion', { // cambia la url por la de tu tunel del puerto 3000, para mas comodidad usa ngrok
+        fetch('https://54a5-2800-e2-2380-271a-225-f9df-2e74-6cee.ngrok-free.app/api/tracking/conversion', { // cambia la url por la de tu tunel del puerto 3000
             method: 'POST',
             body: JSON.stringify(payload),
             headers: {

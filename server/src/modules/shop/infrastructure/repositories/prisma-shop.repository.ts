@@ -1,6 +1,14 @@
+import { Injectable, Inject } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 import { prisma } from "@/common/infrastructure/database/prisma/client";
 
+@Injectable()
 export class PrismaShopRepository {
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) { }
+
   async upsert(data: {
     domain: string;
     accessToken: string;
@@ -20,10 +28,23 @@ export class PrismaShopRepository {
   async findByDomain(
     domain: string
   ) {
-    return prisma.shop.findUnique({
+    const cacheKey = `shop:${domain}`;
+    const cachedShop = await this.cacheManager.get(cacheKey);
+    if (cachedShop) {
+      return cachedShop as any;
+    }
+
+    const shop = await prisma.shop.findUnique({
       where: { domain },
     });
+
+    if (shop) {
+      await this.cacheManager.set(cacheKey, shop, 600000); // asignar la data en cache por 10 minutos
+    }
+
+    return shop;
   }
+
 
   async findById(id: string) {
     return prisma.shop.findUnique({

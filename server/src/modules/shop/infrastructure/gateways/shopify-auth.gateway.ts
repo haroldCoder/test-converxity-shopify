@@ -1,4 +1,8 @@
+import { Injectable } from "@nestjs/common";
+
+@Injectable()
 export class ShopifyAuthGateway {
+
   async exchangeToken(
     shop: string,
     code: string

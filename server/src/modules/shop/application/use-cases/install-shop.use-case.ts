@@ -1,6 +1,9 @@
+import { Injectable } from "@nestjs/common";
 import { env } from "@/common/infrastructure/config/env";
 
+@Injectable()
 export class InstallShopUseCase {
+
   execute(shop: string) {
     const apiKey =
       env.shopifyApiKey;

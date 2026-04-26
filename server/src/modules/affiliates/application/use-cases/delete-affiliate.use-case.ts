@@ -1,10 +1,12 @@
+import { Injectable } from "@nestjs/common";
 import { PrismaAffiliateRepository } from "@/common/infrastructure/repositories";
 import { AffiliateNotFoundException } from "../../domain/exceptions/affiliate-not-found.exception";
 import { AffiliateEntity } from "@/common/domain/entites";
 
+@Injectable()
 export class DeleteAffiliateUseCase {
   constructor(
-    private repo = new PrismaAffiliateRepository()
+    private readonly repo: PrismaAffiliateRepository
   ) { }
 
   async execute(id: string): Promise<AffiliateEntity> {

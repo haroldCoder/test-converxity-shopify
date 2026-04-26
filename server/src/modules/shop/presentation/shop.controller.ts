@@ -13,7 +13,6 @@ import {
   InstallShopUseCase,
   ExchangeTokenUseCase,
 } from "../application/use-cases";
-import { ShopifyAuthGateway } from "../infrastructure/gateways";
 import { ApiResponse } from "@/common/presentation/utils/api-response";
 import { ShopResponseDto } from "./dto";
 import { ShopifyAuthException } from "../domain/exceptions";
@@ -21,13 +20,17 @@ import { ShopAuthResult } from "../domain/entities";
 
 @Controller("api/shops")
 export class ShopsController {
+  constructor(
+    private readonly installUseCase: InstallShopUseCase,
+    private readonly exchangeTokenUseCase: ExchangeTokenUseCase
+  ) { }
+
   @Get("install")
   install(
     @Query("shop") shop: string,
     @Res() res: Response
   ) {
-    const useCase = new InstallShopUseCase();
-    const url = useCase.execute(shop);
+    const url = this.installUseCase.execute(shop);
     return res.redirect(url);
   }
 
@@ -38,12 +41,7 @@ export class ShopsController {
     @Res() res: Response
   ) {
     try {
-      const gateway = new ShopifyAuthGateway();
-      const useCase = new ExchangeTokenUseCase(
-        gateway
-      );
-
-      const result: ShopAuthResult = await useCase.execute(
+      const result: ShopAuthResult = await this.exchangeTokenUseCase.execute(
         {
           shop,
           code,

@@ -17,14 +17,17 @@ import { AffiliateNotFoundException } from "@/modules/affiliates/domain/exceptio
 
 @Controller("api/tracking")
 export class TrackingController {
+  constructor(
+    private readonly registerConversionUseCase: RegisterConversionUseCase
+  ) { }
+
   @Post("conversion")
   async register(
     @Body()
     dto: RegisterConversionDto
   ): Promise<ApiResponse<ConversionResponseDto>> {
     try {
-      const useCase = new RegisterConversionUseCase();
-      const result = await useCase.execute(dto);
+      const result = await this.registerConversionUseCase.execute(dto);
 
       const data = new ConversionResponseDto({
         id: result.id,

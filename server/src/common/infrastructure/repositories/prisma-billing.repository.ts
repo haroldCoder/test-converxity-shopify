@@ -1,6 +1,9 @@
+import { Injectable } from "@nestjs/common";
 import { prisma } from "../database/prisma";
 
+@Injectable()
 export class PrismaBillingRepository {
+
   async create(data: {
     conversionId: string;
     amount: number;

@@ -1,5 +1,7 @@
+import { Injectable } from "@nestjs/common";
 import { prisma } from "@/common/infrastructure/database/prisma";
 
+@Injectable()
 export class PrismaDashboardRepository {
   async getMetrics(
     shopId: string

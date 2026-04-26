@@ -13,7 +13,7 @@ import { ShopifyGraphqlErrorParser, ShopifyHttpTransport, ShopifyRetryPolicy, Re
  * Implementa IShopifyGraphqlClient (DIP): la capa de aplicación nunca importa esta clase.
  * Open/Closed: cada colaborador puede sustituirse sin tocar los demás.
  */
-export class ShopifyGraphqlClient implements IShopifyGraphqlClient {
+export class ShopifyGraphqlClient implements IShopifyGraphqlClient { // este tambien se puede inyectar, pero lo vamos a dejar como clase normal
   private readonly transport: ShopifyHttpTransport;
   private readonly parser: ShopifyGraphqlErrorParser;
   private readonly retryPolicy: ShopifyRetryPolicy;

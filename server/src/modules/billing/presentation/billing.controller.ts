@@ -21,6 +21,10 @@ import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
 
 @Controller("api/billing")
 export class BillingController {
+  constructor(
+    private readonly createUsageChargeUseCase: CreateUsageChargeUseCase
+  ) { }
+
   @Post("usage")
   async create(
     @Body()
@@ -33,18 +37,17 @@ export class BillingController {
           dto.accessToken
         )
       );
-      const useCase = new CreateUsageChargeUseCase(
-        gateway
-      );
 
-      const id = await useCase.execute({
+      const id = await this.createUsageChargeUseCase.execute({
         shopDomain: dto.shopDomain,
         subscriptionLineItemId:
           dto.subscriptionLineItemId,
         amount: dto.amount,
         description: `Charge for conversion ${dto.conversionId}`,
         conversionId: dto.conversionId,
+        gateway,
       });
+
 
       return ApiResponse.success(
         "Usage charge created successfully",

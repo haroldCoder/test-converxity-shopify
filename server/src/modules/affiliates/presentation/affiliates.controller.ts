@@ -27,13 +27,19 @@ import { ApiResponse } from "@/common/presentation/utils/api-response";
 
 @Controller("api/affiliates")
 export class AffiliatesController {
+  constructor(
+    private readonly findAllUseCase: GetAffiliatesUseCase,
+    private readonly createUseCase: CreateAffiliateUseCase,
+    private readonly deleteUseCase: DeleteAffiliateUseCase
+  ) { }
+
   @Get()
   async findAll(
     @Query("shopId") shopId: string
   ): Promise<ApiResponse<AffiliateResponseDto[]>> {
     try {
-      const useCase = new GetAffiliatesUseCase();
-      const affiliates = await useCase.execute(shopId);
+      const affiliates = await this.findAllUseCase.execute(shopId);
+
 
       const data = affiliates.map(
         (a) =>
@@ -61,10 +67,10 @@ export class AffiliatesController {
     createAffiliateDto: CreateAffiliateDto
   ): Promise<ApiResponse<{ id: string }>> {
     try {
-      const useCase = new CreateAffiliateUseCase();
-      const id = await useCase.execute(
+      const id = await this.createUseCase.execute(
         createAffiliateDto
       );
+
 
       return ApiResponse.success(
         "affiliate created successfully",
@@ -92,8 +98,8 @@ export class AffiliatesController {
     @Param("id") id: string
   ): Promise<ApiResponse<AffiliateResponseDto>> {
     try {
-      const useCase = new DeleteAffiliateUseCase();
-      const deleted = await useCase.execute(id);
+      const deleted = await this.deleteUseCase.execute(id);
+
 
       const data = new AffiliateResponseDto({
         ...deleted,

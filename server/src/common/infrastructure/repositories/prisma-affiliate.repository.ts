@@ -1,6 +1,9 @@
+import { Injectable } from "@nestjs/common";
 import { prisma } from "../database/prisma/client";
 
+@Injectable()
 export class PrismaAffiliateRepository {
+
   async create(data: {
     shopId: string;
     name: string;

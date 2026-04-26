@@ -1,7 +1,19 @@
 services:
-  # Base de datos SQLite se almacena localmente en server/prisma/dev.db
-  # No se requiere servicio de contenedor para la base de datos persistente en modo local.
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
-  postgres_data:
+  redis_data:
+  rabbitmq_data:

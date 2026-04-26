@@ -1,16 +1,16 @@
+import { Injectable } from "@nestjs/common";
 import { PrismaAffiliateRepository } from "@/common/infrastructure/repositories";
 import { AffiliateAlreadyExistsException } from "../../domain/exceptions/affiliate-already-exists.exception";
 import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
-
 import { PrismaShopRepository } from "@/modules/shop/infrastructure/repositories";
 
-
+@Injectable()
 export class CreateAffiliateUseCase {
   constructor(
-    private repo = new PrismaAffiliateRepository(),
-    private shopRepo = new PrismaShopRepository()
-
+    private readonly repo: PrismaAffiliateRepository,
+    private readonly shopRepo: PrismaShopRepository
   ) { }
+
 
   async execute(input: {
     shopId: string;
@@ -29,7 +29,7 @@ export class CreateAffiliateUseCase {
       );
     }
 
-    // Check if shop exists
+    // Verificar si la tienda existe
     const shop = await this.shopRepo.findById(input.shopId);
 
     if (!shop) {

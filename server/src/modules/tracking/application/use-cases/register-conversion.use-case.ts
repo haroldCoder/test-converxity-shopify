@@ -1,18 +1,20 @@
+import { Injectable, Inject } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
 import { PrismaTrackingRepository } from "../../infrastructure/repositories";
-import { PrismaShopRepository } from "../../../../modules/shop/infrastructure/repositories";
-import { CreateUsageChargeUseCase } from "../../../../modules/billing/application/use-cases";
-import {
-  ShopifyBillingGateway,
-  ShopifyGraphqlClient,
-} from "../../../../common/infrastructure/gateways";
-import { ShopifyRateLimitException } from "../../../../common/domain/exceptions";
+import { PrismaShopRepository } from "@/modules/shop/infrastructure/repositories";
 import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
 import { AffiliateNotFoundException } from "@/modules/affiliates/domain/exceptions";
+import {
+  ShopifyGraphqlClient,
+  ShopifyOrderGateway,
+} from "@/common/infrastructure/gateways";
 
+@Injectable()
 export class RegisterConversionUseCase {
   constructor(
-    private readonly repo = new PrismaTrackingRepository(),
-    private readonly shopRepo = new PrismaShopRepository()
+    private readonly repo: PrismaTrackingRepository,
+    private readonly shopRepo: PrismaShopRepository,
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy
   ) { }
 
   async execute(input: {
@@ -21,7 +23,7 @@ export class RegisterConversionUseCase {
     orderId: string;
     total: number;
   }) {
-    // Check if shop exists
+    // Verificar si la tienda existe
     const shop = await this.shopRepo.findByDomain(
       input.shopId
     );
@@ -49,85 +51,58 @@ export class RegisterConversionUseCase {
       );
     }
 
-    const appFee = input.total * 0.05;
+    // 1. Verificar datos de la orden via Shopify GraphQL
+    let verifiedTotal = input.total;
+    let currency = "USD";
+
+    if (shop.accessToken) {
+      try {
+        const graphqlClient = new ShopifyGraphqlClient(
+          shop.domain,
+          shop.accessToken,
+          { maxRetries: 3, baseDelayMs: 500 }
+        );
+        const orderGateway = new ShopifyOrderGateway(graphqlClient);
+        const orderDetails = await orderGateway.getOrderDetails(input.orderId);
+
+        verifiedTotal = orderDetails.totalPrice;
+        currency = orderDetails.currencyCode;
+      } catch (error) {
+        console.error(`[Tracking] Failed to verify order ${input.orderId} via GraphQL:`, error);
+      }
+    }
+
+    const appFee = verifiedTotal * 0.05;
     const affiliateFee =
-      input.total * (affiliate.commissionPercent / 100);
+      verifiedTotal * (affiliate.commissionPercent / 100);
 
     const conversion = await this.repo.createConversion({
       shopId: shop.id,
       affiliateId: affiliate.id,
       orderId: input.orderId,
-      total: input.total,
+      total: verifiedTotal,
+      currency,
       appFee,
       affiliateFee,
     });
 
+    // 2. evento asincrono a RabbitMQ
     if (shop.accessToken && shop.subscriptionLineItemId) {
-      await this.chargeUsage(
-        shop as { domain: string; accessToken: string; subscriptionLineItemId: string },
-        conversion.id,
-        input.orderId,
-        appFee,
-      );
+      this.client.emit('conversion.registered', {
+        shopDomain: shop.domain,
+        accessToken: shop.accessToken,
+        subscriptionLineItemId: shop.subscriptionLineItemId,
+        conversionId: conversion.id,
+        orderId: input.orderId,
+        appFee: appFee,
+      });
+      console.log(`[Tracking] Event conversion.registered emitted for order ${input.orderId}`);
     } else {
       console.warn(
-        `[Billing] Skipped usage charge for ${input.shopId}: missing subscription data or token.`
+        `[Tracking] Event skipped for ${input.shopId}: missing subscription data or token.`
       );
     }
 
     return conversion;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
-
-  private async chargeUsage(
-    shop: { domain: string; accessToken: string; subscriptionLineItemId: string },
-    conversionId: string,
-    orderId: string,
-    appFee: number
-  ): Promise<void> {
-    try {
-      const graphqlClient = new ShopifyGraphqlClient(
-        shop.domain,
-        shop.accessToken,
-        // Configuración de reintentos: hasta 3 reintentos, comenzando con un back-off de 500 ms
-        { maxRetries: 3, baseDelayMs: 500 }
-      );
-      const billingGateway = new ShopifyBillingGateway(
-        graphqlClient
-      );
-      const billingUseCase =
-        new CreateUsageChargeUseCase(billingGateway);
-
-      await billingUseCase.execute({
-        shopDomain: shop.domain,
-        subscriptionLineItemId: shop.subscriptionLineItemId,
-        conversionId,
-        amount: appFee,
-        description: `Comisión 5% venta referida (Orden: ${orderId})`,
-      });
-
-      console.log(
-        `[Billing] Usage charge of $${appFee} created for shop ${shop.domain}`
-      );
-    } catch (error) {
-      if (error instanceof ShopifyRateLimitException) {
-        // todos: implementar un sistema de reintentos con backoff exponencial.
-        console.error(
-          `[Billing] Rate limit exceeded for shop ${shop.domain} ` +
-          `after all retries. Suggested retry-after: ${error.retryAfterMs}ms. ` +
-          `Conversion ${conversionId} will need manual billing reconciliation.`,
-          error,
-        );
-      } else {
-        // General billing error — continuar para no deshacer la conversión.
-        console.error(
-          `[Billing] Failed to create usage charge for shop ${shop.domain}:`,
-          error,
-        );
-      }
-    }
   }
 }

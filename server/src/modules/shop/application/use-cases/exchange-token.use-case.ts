@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import { ShopifyAuthGateway } from "../../infrastructure/gateways";
 import { PrismaShopRepository } from "../../infrastructure/repositories";
 import { ShopifyAuthException } from "../../domain/exceptions";
@@ -7,11 +8,13 @@ import {
 } from "../../../../common/infrastructure/gateways";
 import { ShopAuthResult } from "../../domain/entities";
 
+@Injectable()
 export class ExchangeTokenUseCase {
   constructor(
     private readonly gateway: ShopifyAuthGateway,
-    private readonly repo = new PrismaShopRepository()
+    private readonly repo: PrismaShopRepository
   ) { }
+
 
   async execute(
     input: { shop: string; code: string }

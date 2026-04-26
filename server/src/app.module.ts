@@ -6,10 +6,21 @@ import { DashboardModule } from './modules/dahboard/presentation/dashboard.modul
 import { TrackingModule } from './modules/tracking/presentation/tracking.module';
 import { BillingModule } from './modules/billing/presentation/billing.module';
 import { ShopsModule } from './modules/shop/presentation/shop.module';
+import { RedisCacheModule } from './common/infrastructure/cache/redis-cache.module';
+import { EventsModule } from './common/infrastructure/events/events.module';
 
 @Module({
-  imports: [AffiliatesModule, DashboardModule, TrackingModule, BillingModule, ShopsModule],
+  imports: [
+    RedisCacheModule,
+    EventsModule,
+    AffiliatesModule,
+    DashboardModule,
+    TrackingModule,
+    BillingModule,
+    ShopsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+
+export class AppModule { }

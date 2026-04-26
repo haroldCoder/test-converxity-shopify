@@ -1,11 +1,13 @@
+import { Injectable } from "@nestjs/common";
 import { PrismaDashboardRepository } from "../../infrastructure/repositories";
 import { PrismaShopRepository } from "@/modules/shop/infrastructure/repositories";
 import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
 
+@Injectable()
 export class GetDashboardMetricsUseCase {
   constructor(
-    private readonly repo = new PrismaDashboardRepository(),
-    private readonly shopRepo = new PrismaShopRepository()
+    private readonly repo: PrismaDashboardRepository,
+    private readonly shopRepo: PrismaShopRepository
   ) { }
 
   async execute(shopId: string) {

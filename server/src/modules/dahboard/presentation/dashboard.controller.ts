@@ -13,13 +13,17 @@ import { ShopNotFoundException } from "@/modules/shop/domain/exceptions";
 
 @Controller("api/dashboard")
 export class DashboardController {
+  constructor(
+    private readonly getMetricsUseCase: GetDashboardMetricsUseCase
+  ) { }
+
   @Get()
   async getMetrics(
     @Query("shopId") shopId: string
   ): Promise<ApiResponse<DashboardMetricsDto>> {
     try {
-      const useCase = new GetDashboardMetricsUseCase();
-      const metrics = await useCase.execute(shopId);
+      const metrics = await this.getMetricsUseCase.execute(shopId);
+
 
       const data = new DashboardMetricsDto(metrics);
 

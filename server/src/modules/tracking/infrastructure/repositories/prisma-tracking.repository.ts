@@ -1,5 +1,7 @@
+import { Injectable } from "@nestjs/common";
 import { prisma } from "@/common/infrastructure/database/prisma";
 
+@Injectable()
 export class PrismaTrackingRepository {
   async findByOrderId(
     shopId: string,
@@ -31,9 +33,11 @@ export class PrismaTrackingRepository {
       affiliateId: string;
       orderId: string;
       total: number;
+      currency: string;
       appFee: number;
       affiliateFee: number;
     }
+
   ) {
     return prisma.conversion.create({
       data,
