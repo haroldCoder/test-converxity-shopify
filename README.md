@@ -116,3 +116,30 @@ Un flujo seguro incluiría:
 *   **Health Checks:** Endpoint `/health` implementado en NestJS para que el orquestador (Docker/AWS) sepa cuándo reiniciar un contenedor.
 *   **Monitoreo:** Integración con **Sentry** para errores y **Datadog/NewRelic** para métricas de rendimiento (Latencia de respuesta a Web Pixels es crítica).
 *   **Rotación de Secretos:** Implementación de un script o pipeline que actualice periódicamente las claves de API sin tiempo de inactividad, aprovechando el soporte de múltiples claves de Shopify si es posible.
+
+## 8. Escalabilidad Teórica (Alta Concurrencia)
+
+Aunque construyas un MVP local con SQLite, queremos que tus decisiones arquitectónicas contemplen un escenario real de producción: la app instalada en más de 1,000 tiendas, procesando picos de miles de eventos y transacciones por minuto (ej. durante un Black Friday). 
+
+La infraestructura actual está diseñada para desacoplar el registro de la conversión (HTTP) del procesamiento de cargos (Asíncrono vía RabbitMQ), permitiendo escalar el consumidor de billing de forma independiente según la carga.
+
+## 9. Diagrama de arquitectura robusta
+
+![Arquitectura Robusta](/home/koder/Documentos/test-converxity-shopify/assets/arqui.png)
+
+---
+
+### Ejecución con Docker (Producción/Staging)
+
+Para levantar el entorno completo (Redis, RabbitMQ) usando Docker Compose:
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+
+## 10. Aprobación y Fusión
+
+> [!IMPORTANT]
+> El jefe de IT o encargado del proyecto debe de aceptar el **Pull Request (PR)** de la rama feature/implement-scalar-system hacia `main` (Git Flow) para integrar oficialmente la caracteristica de arquitectura robusta con microservicios y escalabilidad.
