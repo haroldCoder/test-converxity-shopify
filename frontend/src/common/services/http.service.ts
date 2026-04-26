@@ -1,5 +1,10 @@
 import { API_URL } from "./api.service";
 
+interface ApiResponse<T> {
+  message: string;
+  data: T;
+}
+
 export async function http<T>(
   path: string,
   options?: RequestInit
@@ -18,5 +23,6 @@ export async function http<T>(
     throw new Error("Request failed");
   }
 
-  return response.json();
+  const result: ApiResponse<T> = await response.json();
+  return result.data;
 }
