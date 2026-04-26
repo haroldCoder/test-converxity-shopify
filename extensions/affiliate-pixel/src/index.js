@@ -22,7 +22,7 @@ analytics.subscribe('checkout_completed', async (event) => {
     if (affiliateCode && checkout.order) {
         const payload = {
             // Usamos el ID de la tienda del contexto
-            shopId: String(event.context.shop.id || 'kodertes.myshopify.com'),
+            shopId: "test-shop.myshopify.com", // aqui tiene que ir el id de la tienda, que este en la base de datos, por defecto es "test-affiliate"
             affiliateCode: affiliateCode,
             orderId: String(checkout.order.id),
             total: parseFloat(checkout.totalPrice.amount),
@@ -31,7 +31,7 @@ analytics.subscribe('checkout_completed', async (event) => {
         console.log('Enviando reporte de conversión al servidor...', payload)
 
         // Petición hacia tu túnel en localhost:3000
-        fetch('https://huge-jobs-happen.loca.lt/api/tracking/conversion', { // cambia la url por la de tu tunel del puerto 3000
+        fetch('https://54a5-2800-e2-2380-271a-225-f9df-2e74-6cee.ngrok-free.app/api/tracking/conversion', { // cambia la url por la de tu tunel del puerto 3000, para mas comodidad usa ngrok
             method: 'POST',
             body: JSON.stringify(payload),
             headers: {

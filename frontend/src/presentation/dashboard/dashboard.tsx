@@ -43,15 +43,15 @@ export const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <Text variant="headingMd" as="h3">Total Referred Sales</Text>
-                <Text variant="headingXl" as="p">{metrics?.totalReferredSales || 0}</Text>
+                <Text variant="headingXl" as="p">${metrics?.totalReferredSales.toLocaleString() || 0}</Text>
               </div>
               <div>
                 <Text variant="headingMd" as="h3">Total Commissions Generated</Text>
-                <Text variant="headingXl" as="p">${metrics?.totalCommissionsGenerated || 0}</Text>
+                <Text variant="headingXl" as="p">${metrics?.totalCommissionsGenerated.toLocaleString() || 0}</Text>
               </div>
               <div>
                 <Text variant="headingMd" as="h3">Commissions to Pay Affiliates</Text>
-                <Text variant="headingXl" as="p">${metrics?.commissionsToPayAffiliates || 0}</Text>
+                <Text variant="headingXl" as="p">${metrics?.commissionsToPayAffiliates.toLocaleString() || 0}</Text>
               </div>
             </div>
           </Card>
