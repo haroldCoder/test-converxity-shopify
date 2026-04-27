@@ -7,7 +7,7 @@ export class RegisterConversionUseCase {
     private readonly conversionRepo: ConversionRepository,
     private readonly affiliateRepo: AffiliateRepository,
     private readonly billingGateway: BillingGateway
-  ) {}
+  ) { }
 
   async execute(data: {
     shopId: string;

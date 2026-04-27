@@ -12,6 +12,6 @@ export const env = {
         process.env
             .SHOPIFY_API_SECRET || "",
     shopifyRedirectUri:
-        process.env.SHOPIFY_REDIRECT_URI ||
+        process.env.SHOPIFY_APP_URL ||
         "",
 };
