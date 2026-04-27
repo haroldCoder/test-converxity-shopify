@@ -14,7 +14,7 @@ export const Affiliates = () => {
   const [code, setCode] = useState('')
   const [commissionPercent, setCommissionPercent] = useState('')
 
-  const affiliatesData : Affiliate[] = useMemo(() => affiliates ?? affiliatesDataLocal, [affiliates])
+  const affiliatesData: Affiliate[] = useMemo(() => affiliates ?? affiliatesDataLocal, [affiliates])
 
   const handleAdd = () => {
     setName('')
@@ -39,7 +39,7 @@ export const Affiliates = () => {
 
   if (isLoading) {
     return (
-      <Page title="Affiliate Management">
+      <Page title="Affiliate Management"> {/* Estos componentes los podemos mover a esta presentacion/components */}
         <Layout>
           <Layout.Section>
             <Card>
@@ -70,6 +70,10 @@ export const Affiliates = () => {
   const rows = (affiliatesData || []).map(affiliate => [
     affiliate.code,
     `${affiliate.commissionPercent}%`,
+    <div className={`flex justify-center items-center px-4 py-2 rounded-lg text-white gap-2 ${affiliate.totalToPay > 0 ? 'bg-green-600' : 'bg-red-600'}`}>
+      <Text as="p" variant="bodyMd">$</Text>
+      <Text as="p" variant="bodyMd">{affiliate.totalToPay.toLocaleString()}</Text>
+    </div>,
     <div key={affiliate.id}>
       <Button onClick={() => handleDelete(affiliate.id)} loading={deleteMutation.isPending}>Delete</Button>
     </div>
@@ -85,8 +89,8 @@ export const Affiliates = () => {
         <Layout.Section>
           <Card>
             <DataTable
-              columnContentTypes={['text', 'text', 'text']}
-              headings={['Code', 'Commission', 'Actions']}
+              columnContentTypes={['text', 'text', 'text', 'text']}
+              headings={['Code', 'Commission', 'Total to pay', 'Actions']}
               rows={rows}
             />
           </Card>

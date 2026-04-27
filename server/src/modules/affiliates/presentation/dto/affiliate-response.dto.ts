@@ -4,6 +4,7 @@ export class AffiliateResponseDto {
     name: string;
     code: string;
     commissionPercent: number;
+    affiliateFee: number;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;

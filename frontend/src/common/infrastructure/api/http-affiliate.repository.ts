@@ -1,10 +1,13 @@
 import { http } from '../../services/http.service'
 import type { Affiliate } from '../../domain/entities'
 import type { AffiliateRepository } from '../../domain/repositories'
+import type { ApiResponseAffiliatesEntity } from '../entities/api-response-affiliates.entity'
+import { ConvertApiAffiliatesToAffiliatesMapper } from '../mappers/convert-api-affiliates-to-affiliates.mapper'
 
 export class HttpAffiliateRepository implements AffiliateRepository {
     async getAffiliates(shopId: string): Promise<Affiliate[]> {
-        return http<Affiliate[]>(`/api/affiliates?shopId=${shopId}`)
+        const apiAffiliates = await http<ApiResponseAffiliatesEntity[]>(`/api/affiliates?shopId=${shopId}`)
+        return ConvertApiAffiliatesToAffiliatesMapper.map(apiAffiliates)
     }
 
     async createAffiliate(affiliate: Omit<Affiliate, 'id'>): Promise<Affiliate> {

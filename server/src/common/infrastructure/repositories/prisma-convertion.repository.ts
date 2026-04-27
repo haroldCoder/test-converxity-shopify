@@ -36,6 +36,18 @@ export class PrismaConvertionRepository {
     });
   }
 
+  async findByAffiliateId(affiliateId: string) {
+    return prisma.conversion.findFirst({
+      where: { affiliateId },
+      include: {
+        affiliate: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
   async findAll(shopId: string) {
     return prisma.conversion.findMany({
       where: { shopId },

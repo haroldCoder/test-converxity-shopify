@@ -38,9 +38,10 @@ export class AffiliatesController {
       const data = affiliates.map(
         (a) =>
           new AffiliateResponseDto({
-            ...a,
-            createdAt: a.createdAt?.toISOString(),
-            updatedAt: a.updatedAt?.toISOString(),
+            ...a.affiliate,
+            affiliateFee: a.convertion.affiliateFee,
+            createdAt: a.affiliate.createdAt?.toISOString(),
+            updatedAt: a.affiliate.updatedAt?.toISOString(),
           })
       );
 

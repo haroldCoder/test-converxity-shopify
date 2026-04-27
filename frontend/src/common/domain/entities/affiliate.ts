@@ -4,4 +4,5 @@ export interface Affiliate {
     code: string
     commissionPercent: number
     shopId: string
+    totalToPay: number
 }
